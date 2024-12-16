@@ -50,7 +50,7 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # اجرای ربات
 if __name__ == '__main__':
     init_db()
-    app = ApplicationBuilder().token("YOUR_BOT_TOKEN").build()
+    app = ApplicationBuilder().token(7946163201:AAFsGrP37mmRtmtyZF15STmEObUP7ozT_oM).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
     app.run_polling()
