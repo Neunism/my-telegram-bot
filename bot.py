@@ -9,53 +9,15 @@ TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
 # تابع استارت
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # تعریف دکمه‌ها با طراحی جدید
-    keyboard = [
-        [
-            InlineKeyboardButton("🎬 فیلم‌ها", callback_data="movies"),
-            InlineKeyboardButton("📺 سریال‌ها", callback_data="tv_shows")
-        ],
-        [
-            InlineKeyboardButton("🔄 به روز شده‌ها", callback_data="updated"),
-        ],
-        [
-            InlineKeyboardButton("📋 واچ لیست من", callback_data="watchlist"),
-            InlineKeyboardButton("🌟 برترین‌ها", callback_data="top_rated")
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # ارسال پیام خوش‌آمدگویی همراه با دکمه‌ها
-    await update.message.reply_text(
-        "سلام! خوش آمدید.\nیکی از گزینه‌های زیر را انتخاب کنید یا نام فیلم را برای جستجو ارسال کنید:",
-        reply_markup=reply_markup
-    )
-
-# مدیریت کلیک روی دکمه‌ها
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-
-    # واکنش به هر دکمه بر اساس callback_data
-    if query.data == "movies":
-        await query.edit_message_text("🎬 فیلم‌ها در حال بارگذاری هستند...")
-    elif query.data == "tv_shows":
-        await query.edit_message_text("📺 سریال‌ها در حال بارگذاری هستند...")
-    elif query.data == "updated":
-        await query.edit_message_text("🔄 جدیدترین فیلم‌ها و سریال‌ها در حال بارگذاری هستند...")
-    elif query.data == "watchlist":
-        await query.edit_message_text("📋 واچ لیست شما نمایش داده خواهد شد.")
-    elif query.data == "top_rated":
-        await query.edit_message_text("🌟 لیست برترین‌ها در حال بارگذاری هستند...")
-
-# جستجوی فیلم
-async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.message.text.strip()
+    movie_name = context.args[0] if context.args else None
+    if not movie_name:
+        await update.message.reply_text("لطفاً نام فیلم را وارد کنید.")
+        return
 
     # درخواست به TMDb API برای جستجوی فیلم
     response = requests.get(
         f"{TMDB_BASE_URL}/search/movie",
-        params={"api_key": TMDB_API_KEY, "query": query, "language": "fa-IR"}
+        params={"api_key": TMDB_API_KEY, "query": movie_name, "language": "fa-IR"}
     )
     if response.status_code != 200:
         await update.message.reply_text("⛔ خطا در ارتباط با TMDb API.")
@@ -96,6 +58,23 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(message, parse_mode="Markdown", disable_web_page_preview=True)
 
+# مدیریت کلیک روی دکمه‌ها
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    # واکنش به هر دکمه بر اساس callback_data
+    if query.data == "movies":
+        await query.edit_message_text("🎬 فیلم‌ها در حال بارگذاری هستند...")
+    elif query.data == "tv_shows":
+        await query.edit_message_text("📺 سریال‌ها در حال بارگذاری هستند...")
+    elif query.data == "updated":
+        await query.edit_message_text("🔄 جدیدترین فیلم‌ها و سریال‌ها در حال بارگذاری هستند...")
+    elif query.data == "watchlist":
+        await query.edit_message_text("📋 واچ لیست شما نمایش داده خواهد شد.")
+    elif query.data == "top_rated":
+        await query.edit_message_text("🌟 لیست برترین‌ها در حال بارگذاری هستند...")
+
 # اجرای ربات
 if __name__ == "__main__":
     # دریافت توکن ربات از متغیر محیطی
@@ -107,7 +86,7 @@ if __name__ == "__main__":
     # ثبت هندلرها
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, start))
 
     # اجرای ربات
     app.run_polling()
