@@ -1,5 +1,5 @@
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
 import os
 import requests
 
@@ -7,9 +7,43 @@ import requests
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
+# تابع استارت
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("سلام! نام فیلم مورد نظر را ارسال کنید.")
+    # تعریف دکمه‌ها
+    keyboard = [
+        [
+            InlineKeyboardButton("🎥 فیلم‌های داغ", callback_data="hot_movies"),
+            InlineKeyboardButton("🌟 پرفروش‌ترین‌ها", callback_data="top_sellers")
+        ],
+        [
+            InlineKeyboardButton("⚡ ارتقاء پکیج", callback_data="upgrade_package"),
+            InlineKeyboardButton("🎬 فیلم‌های جدید", callback_data="new_movies")
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
+    # ارسال پیام خوش‌آمدگویی همراه با دکمه‌ها
+    await update.message.reply_text(
+        "سلام! خوش آمدید.\nیکی از گزینه‌های زیر را انتخاب کنید یا نام فیلم را برای جستجو ارسال کنید:",
+        reply_markup=reply_markup
+    )
+
+# مدیریت کلیک روی دکمه‌ها
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    # واکنش به هر دکمه بر اساس callback_data
+    if query.data == "hot_movies":
+        await query.edit_message_text("🔥 فیلم‌های داغ در حال بارگذاری هستند...")
+    elif query.data == "top_sellers":
+        await query.edit_message_text("🌟 لیست پرفروش‌ترین فیلم‌ها در حال آماده‌سازی است...")
+    elif query.data == "upgrade_package":
+        await query.edit_message_text("⚡ لطفاً جهت ارتقاء پکیج خود به وب‌سایت ما مراجعه کنید.")
+    elif query.data == "new_movies":
+        await query.edit_message_text("🎬 فیلم‌های جدید در حال بارگذاری هستند...")
+
+# جستجوی فیلم
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.message.text.strip()
 
@@ -57,12 +91,18 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(message, parse_mode="Markdown", disable_web_page_preview=True)
 
+# اجرای ربات
 if __name__ == "__main__":
     # دریافت توکن ربات از متغیر محیطی
     token = os.getenv("BOT_TOKEN")
 
-    # اجرای ربات
+    # ایجاد اپلیکیشن ربات
     app = ApplicationBuilder().token(token).build()
+
+    # ثبت هندلرها
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
+
+    # اجرای ربات
     app.run_polling()
