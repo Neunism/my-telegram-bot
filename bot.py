@@ -50,6 +50,7 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # اجرای ربات
 if __name__ == '__main__':
     init_db()
+<<<<<<< HEAD
     import os
 from telegram.ext import ApplicationBuilder
 
@@ -61,6 +62,9 @@ app = ApplicationBuilder().token(token).build()
 
 # راه‌اندازی ربات
 app.run_polling()
+=======
+    app = ApplicationBuilder().token(7946163201:AAFsGrP37mmRtmtyZF15STmEObUP7ozT_oM).build()
+>>>>>>> 24df561610fa17f732cd6efc9725dd5b01530093
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
     app.run_polling()
