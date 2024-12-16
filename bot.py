@@ -1,6 +1,7 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 import sqlite3
+import os
 
 # اتصال به پایگاه داده و ایجاد جدول
 def init_db():
@@ -47,24 +48,18 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(message, parse_mode="Markdown", disable_web_page_preview=True)
 
-# اجرای ربات
-if __name__ == '__main__':
-    init_db()
-<<<<<<< HEAD
-    import os
-from telegram.ext import ApplicationBuilder
-
 # دریافت توکن از متغیر محیطی
 token = os.getenv("BOT_TOKEN")
 
-# ایجاد اپلیکیشن با توکن
-app = ApplicationBuilder().token(token).build()
+if __name__ == '__main__':
+    init_db()
+    
+    # ایجاد اپلیکیشن با توکن
+    app = ApplicationBuilder().token(token).build()
 
-# راه‌اندازی ربات
-app.run_polling()
-=======
-    app = ApplicationBuilder().token(7946163201:AAFsGrP37mmRtmtyZF15STmEObUP7ozT_oM).build()
->>>>>>> 24df561610fa17f732cd6efc9725dd5b01530093
+    # افزودن هندلرها
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
+
+    # راه‌اندازی ربات
     app.run_polling()
