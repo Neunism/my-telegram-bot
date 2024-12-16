@@ -4,7 +4,7 @@ import os
 import requests
 
 # دریافت API Key از متغیر محیطی
-TMDB_API_KEY = os.getenv("f46edbdd71f891a9d2a9d2beba344946")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
