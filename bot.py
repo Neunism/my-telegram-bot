@@ -9,15 +9,18 @@ TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
 # تابع استارت
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # تعریف دکمه‌ها
+    # تعریف دکمه‌ها با طراحی جدید
     keyboard = [
         [
-            InlineKeyboardButton("🎥 فیلم‌های داغ", callback_data="hot_movies"),
-            InlineKeyboardButton("🌟 پرفروش‌ترین‌ها", callback_data="top_sellers")
+            InlineKeyboardButton("🎬 فیلم‌ها", callback_data="movies"),
+            InlineKeyboardButton("📺 سریال‌ها", callback_data="tv_shows")
         ],
         [
-            InlineKeyboardButton("⚡ ارتقاء پکیج", callback_data="upgrade_package"),
-            InlineKeyboardButton("🎬 فیلم‌های جدید", callback_data="new_movies")
+            InlineKeyboardButton("🔄 به روز شده‌ها", callback_data="updated"),
+        ],
+        [
+            InlineKeyboardButton("📋 واچ لیست من", callback_data="watchlist"),
+            InlineKeyboardButton("🌟 برترین‌ها", callback_data="top_rated")
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -34,14 +37,16 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     # واکنش به هر دکمه بر اساس callback_data
-    if query.data == "hot_movies":
-        await query.edit_message_text("🔥 فیلم‌های داغ در حال بارگذاری هستند...")
-    elif query.data == "top_sellers":
-        await query.edit_message_text("🌟 لیست پرفروش‌ترین فیلم‌ها در حال آماده‌سازی است...")
-    elif query.data == "upgrade_package":
-        await query.edit_message_text("⚡ لطفاً جهت ارتقاء پکیج خود به وب‌سایت ما مراجعه کنید.")
-    elif query.data == "new_movies":
-        await query.edit_message_text("🎬 فیلم‌های جدید در حال بارگذاری هستند...")
+    if query.data == "movies":
+        await query.edit_message_text("🎬 فیلم‌ها در حال بارگذاری هستند...")
+    elif query.data == "tv_shows":
+        await query.edit_message_text("📺 سریال‌ها در حال بارگذاری هستند...")
+    elif query.data == "updated":
+        await query.edit_message_text("🔄 جدیدترین فیلم‌ها و سریال‌ها در حال بارگذاری هستند...")
+    elif query.data == "watchlist":
+        await query.edit_message_text("📋 واچ لیست شما نمایش داده خواهد شد.")
+    elif query.data == "top_rated":
+        await query.edit_message_text("🌟 لیست برترین‌ها در حال بارگذاری هستند...")
 
 # جستجوی فیلم
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
