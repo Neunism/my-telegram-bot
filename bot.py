@@ -1,6 +1,23 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 import sqlite3
+import os
+
+# اتصال به پایگاه داده و ایجاد جدول
+def init_db():
+    conn = sqlite3.connect("movies.db")
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS movies (
+        id INTEGER PRIMARY KEY,
+        title TEXT,
+        description TEXT,
+        release_date TEXT,
+        quality_480p TEXT,
+        quality_720p TEXT,
+        quality_1080p TEXT
+    )''')
+    conn.commit()
+    conn.close()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("سلام! نام فیلم مورد نظر را ارسال کنید.")
@@ -9,11 +26,8 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.message.text.strip()
     conn = sqlite3.connect("movies.db")
     cursor = conn.cursor()
-
-    # جستجو برای فیلم در پایگاه داده
-    cursor.execute("SELECT * FROM movies WHERE title LIKE ?", ('%' + query + '%',))
+    cursor.execute("SELECT * FROM movies WHERE title = ?", (query,))
     movie = cursor.fetchone()
-
     conn.close()
 
     if not movie:
@@ -34,19 +48,18 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(message, parse_mode="Markdown", disable_web_page_preview=True)
 
-# اجرای ربات
+# دریافت توکن از متغیر محیطی
+token = os.getenv("BOT_TOKEN")
+
 if __name__ == '__main__':
-    from telegram.ext import ApplicationBuilder
-
-    # دریافت توکن از متغیر محیطی
-    import os
-    token = os.getenv("BOT_TOKEN")
-
+    init_db()
+    
     # ایجاد اپلیکیشن با توکن
     app = ApplicationBuilder().token(token).build()
 
-    # راه‌اندازی ربات
+    # افزودن هندلرها
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
 
+    # راه‌اندازی ربات
     app.run_polling()
